@@ -24,6 +24,10 @@ app:
     - ./:/usr/src/app
   links:
     - db:db
+    - rabbitmq:rabbitmq
+  environment:
+    - AFRICAS_TALKING_API_KEY=14510624106b92ec98f4fbd518627ee4f307a497121e52145c78b389a331bf0c
+    - AFRICAS_TALKING_USERNAME=tumacredo
   ports:
     - 9000:80
 
@@ -36,10 +40,13 @@ worker:
         - db:db
         - rabbitmq:rabbitmq
     command: airflow worker
+    environment:
+      - C_FORCE_ROOT=true
+      - AFRICAS_TALKING_API_KEY=14510624106b92ec98f4fbd518627ee4f307a497121e52145c78b389a331bf0c
+      - AFRICAS_TALKING_USERNAME=tumacredo
 
 flower:
     build: .
-    restart: always
     volumes:
       - ./:/usr/src/app
     links:
