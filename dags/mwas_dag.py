@@ -4,8 +4,9 @@ Documentation that goes along with the Airflow tutorial located
 [here](http://pythonhosted.org/airflow/tutorial.html)
 """
 from airflow import DAG
-from airflow.operators import BashOperator
+from airflow.operators import BashOperator, PythonOperator
 from datetime import datetime, timedelta
+import requests
 
 seven_days_ago = datetime.combine(datetime.today() - timedelta(7),
                                   datetime.min.time())
@@ -28,11 +29,26 @@ default_args = {
 
 dag = DAG('mwaside-dag', default_args=default_args)
 
+def send_message():
+    data = {
+        "hi": [["0702729654", ""]]
+    }
+    url = 'http://lb.tumacredo-stag.a087b769.svc.dockerapp.io:9000/api_v1/send_sms'
+    headers = {
+        "Authorization": "jwt eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwidXNlcl9pZCI6MSwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsImV4cCI6MTQ2Njk1MDk4Mn0.wtkfgxyJ5j0vfLlptdOx_eSk41V2BUcNJIouy5DbsRQ",
+        "ContentType": "application/json"
+    }
+    response = requests.post(url=url, json=data, headers=headers)
+    print(response.content)
+
 # t1, t2 and t3 are examples of tasks created by instantiating operators
-t1 = BashOperator(
-    task_id='print_date',
-    bash_command='date',
-    dag=dag)
+t1 = PythonOperator(
+    python_callable=send_message,
+    task_id="sms_one",
+    dag=dag
+)
+
+
 
 t1.doc_md = """\
 #### Task Documentation
@@ -44,26 +60,19 @@ rendered in the UI's Task Details page.
 
 dag.doc_md = __doc__
 
-t2 = BashOperator(
-    task_id='sleep',
-    depends_on_past=False,
-    bash_command='sleep 5',
-    dag=dag)
 
-templated_command = """
-{% for i in range(5) %}
-    echo "{{ ds }}"
-    echo "{{ macros.ds_add(ds, 7)}}"
-    echo "{{ params.my_param }}"
-{% endfor %}
-"""
+t2 = PythonOperator(
+    python_callable=send_message,
+    task_id="sms_two",
+    dag=dag
+)
 
-t3 = BashOperator(
-    task_id='templated',
-    depends_on_past=False,
-    bash_command=templated_command,
-    params={'my_param': 'Parameter I passed in'},
-    dag=dag)
+t3 = PythonOperator(
+    python_callable=send_message,
+    task_id="sms_three",
+    dag=dag
+)
+
 
 t2.set_upstream(t1)
 t3.set_upstream(t1)
