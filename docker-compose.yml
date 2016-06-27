@@ -42,8 +42,8 @@ worker:
     command: airflow worker
     environment:
       - C_FORCE_ROOT=true
-      - AFRICAS_TALKING_API_KEY=14510624106b92ec98f4fbd518627ee4f307a497121e52145c78b389a331bf0c
-      - AFRICAS_TALKING_USERNAME=tumacredo
+      - AFRICAS_TALKING_API_KEY=21a954c0eaa6ae090756ba3f2027b21434a1b9d30002996324cb55a1d7f5e7e3
+      - AFRICAS_TALKING_USERNAME=mwaside
 
 flower:
     build: .
