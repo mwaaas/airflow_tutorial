@@ -7,6 +7,7 @@ from airflow import DAG
 from airflow.operators import BashOperator, PythonOperator
 from datetime import datetime, timedelta
 import requests
+import json
 
 seven_days_ago = datetime.combine(datetime.today() - timedelta(7),
                                   datetime.min.time())
@@ -29,21 +30,27 @@ default_args = {
 
 dag = DAG('mwaside-dag', default_args=default_args)
 
-def send_message():
-    data = {
-        "hi": [["0702729654", ""]]
-    }
+def send_message(message):
     url = 'http://lb.tumacredo-stag.a087b769.svc.dockerapp.io:9000/api_v1/send_sms'
+
+    payload = {u'sender_id': None,
+               u'message_data': {message: [[u'0702729654', u'']]},
+               u'calculated_cost': 1}
+    payload = json.dumps(payload)
+
     headers = {
-        "Authorization": "jwt eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwidXNlcl9pZCI6MSwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsImV4cCI6MTQ2Njk1MDk4Mn0.wtkfgxyJ5j0vfLlptdOx_eSk41V2BUcNJIouy5DbsRQ",
-        "ContentType": "application/json"
+        'content-type': "application/json",
+        'authorization': "Basic YWRtaW46eXoycnNNY2FqM1VKM2RhUnN3QmQ="
     }
-    response = requests.post(url=url, json=data, headers=headers)
-    print(response.content)
+
+    response = requests.post(url, data=payload, headers=headers)
+
+    print(response.text)
 
 # t1, t2 and t3 are examples of tasks created by instantiating operators
 t1 = PythonOperator(
     python_callable=send_message,
+    op_args="sms one",
     task_id="sms_one",
     dag=dag
 )
@@ -63,6 +70,7 @@ dag.doc_md = __doc__
 
 t2 = PythonOperator(
     python_callable=send_message,
+op_args="sms one",
     task_id="sms_two",
     dag=dag
 )

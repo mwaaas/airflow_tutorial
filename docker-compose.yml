@@ -1,57 +1,67 @@
-db:
-  image: postgres:9.5
-  environment:
-    - POSTGRES_USER=airflow
-    - POSTGRES_PASSWORD=airflow
-    - POSTGRES_DB=airflow
-  ports:
-    - 5432:5432
-
-rabbitmq:
-    image: rabbitmq:3-management
-    restart: always
+version: '2'
+services:
+  db:
+    image: postgres:9.5
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
     ports:
-        - "15672:15672"
-        - "5672:5672"
-    environment:
-        - RABBITMQ_DEFAULT_USER=airflow
-        - RABBITMQ_DEFAULT_PASS=airflow
-        - RABBITMQ_DEFAULT_VHOST=airflow
+      - 5432:5432
 
-app:
-  build: .
-  volumes:
-    - ./:/usr/src/app
-  links:
-    - db:db
-    - rabbitmq:rabbitmq
-  environment:
-    - AFRICAS_TALKING_API_KEY=14510624106b92ec98f4fbd518627ee4f307a497121e52145c78b389a331bf0c
-    - AFRICAS_TALKING_USERNAME=tumacredo
-  ports:
-    - 9000:80
+  rabbitmq:
+      image: rabbitmq:3-management
+      restart: always
+      ports:
+          - "15672:15672"
+          - "5672:5672"
+      environment:
+          - RABBITMQ_DEFAULT_USER=airflow
+          - RABBITMQ_DEFAULT_PASS=airflow
+          - RABBITMQ_DEFAULT_VHOST=airflow
 
-worker:
-    build: .
-    restart: always
-    volumes:
-      - ./:/usr/src/app
-    links:
-        - db:db
-        - rabbitmq:rabbitmq
-    command: airflow worker
-    environment:
-      - C_FORCE_ROOT=true
-      - AFRICAS_TALKING_API_KEY=21a954c0eaa6ae090756ba3f2027b21434a1b9d30002996324cb55a1d7f5e7e3
-      - AFRICAS_TALKING_USERNAME=mwaside
-
-flower:
+  app:
     build: .
     volumes:
       - ./:/usr/src/app
     links:
-        - rabbitmq:rabbitmq
-    command: airflow flower
+      - db:db
+      - rabbitmq:rabbitmq
+    depends_on:
+      - db
+      - rabbitmq
+    environment:
+      - AFRICAS_TALKING_API_KEY=14510624106b92ec98f4fbd518627ee4f307a497121e52145c78b389a331bf0c
+      - AFRICAS_TALKING_USERNAME=tumacredo
     ports:
-      - "5558:5555"
+      - 9000:80
+
+  worker:
+      build: .
+      restart: always
+      volumes:
+        - ./:/usr/src/app
+      links:
+          - db:db
+          - rabbitmq:rabbitmq
+      depends_on:
+        - db
+        - rabbitmq
+      command: airflow worker
+      environment:
+        - C_FORCE_ROOT=true
+        - AFRICAS_TALKING_API_KEY=21a954c0eaa6ae090756ba3f2027b21434a1b9d30002996324cb55a1d7f5e7e3
+        - AFRICAS_TALKING_USERNAME=mwaside
+
+  flower:
+      build: .
+      depends_on:
+        - rabbitmq
+      volumes:
+        - ./:/usr/src/app
+      links:
+          - rabbitmq:rabbitmq
+      command: airflow flower
+      ports:
+        - "5558:5555"
 
