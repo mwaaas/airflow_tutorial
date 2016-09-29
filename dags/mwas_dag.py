@@ -24,7 +24,7 @@ default_args = {
     # 'queue': 'bash_queue',
     # 'pool': 'backfill',
     # 'priority_weight': 10,
-    # 'schedule_interval': timedelta(1),
+    'schedule_interval': timedelta(days=30),
     # 'end_date': datetime(2016, 1, 1),
 }
 
