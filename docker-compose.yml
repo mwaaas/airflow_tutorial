@@ -53,5 +53,5 @@ flower:
         - rabbitmq:rabbitmq
     command: airflow flower
     ports:
-      - "5555:5555"
+      - "5558:5555"
 
