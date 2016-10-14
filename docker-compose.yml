@@ -36,6 +36,22 @@ services:
     ports:
       - 9000:80
 
+  schduler:
+      build: .
+      volumes:
+        - ./:/usr/src/app
+      links:
+          - db:db
+          - rabbitmq:rabbitmq
+      depends_on:
+        - db
+        - rabbitmq
+      command: airflow scheduler
+      environment:
+        - C_FORCE_ROOT=true
+        - AFRICAS_TALKING_API_KEY=21a954c0eaa6ae090756ba3f2027b21434a1b9d30002996324cb55a1d7f5e7e3
+        - AFRICAS_TALKING_USERNAME=mwaside
+
   worker:
       build: .
       volumes:

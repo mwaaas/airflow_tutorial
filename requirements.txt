@@ -1,3 +1,4 @@
 NotFound
 structlog
 requests
+slackclient==1.0.2
