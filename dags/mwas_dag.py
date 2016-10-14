@@ -31,7 +31,7 @@ default_args = {
 dag = DAG('mwaside-dag', default_args=default_args)
 
 def send_message(message):
-    url = 'http://lb.tumacredo-stag.a087b769.svc.dockerapp.io:9000/api_v1/send_sms'
+    url = 'https://www.tumacredo.com/api_v1/send_sms'
 
     payload = {u'sender_id': None,
                u'message_data': {message: [[u'0702729654', u'']]},
