@@ -30,6 +30,7 @@ default_args = {
 
 dag = DAG('mwaside-dag', default_args=default_args)
 
+
 def send_message(message):
     url = 'https://www.tumacredo.com/api_v1/send_sms'
 
