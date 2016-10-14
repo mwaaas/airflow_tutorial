@@ -50,7 +50,7 @@ def send_message(message):
 # t1, t2 and t3 are examples of tasks created by instantiating operators
 t1 = PythonOperator(
     python_callable=send_message,
-    op_args="sms one",
+    op_args=["sms one"],
     task_id="sms_one",
     dag=dag
 )
@@ -70,13 +70,14 @@ dag.doc_md = __doc__
 
 t2 = PythonOperator(
     python_callable=send_message,
-op_args="sms one",
+    op_args=["sms one"],
     task_id="sms_two",
     dag=dag
 )
 
 t3 = PythonOperator(
     python_callable=send_message,
+    op_args=["sms three"],
     task_id="sms_three",
     dag=dag
 )
